@@ -1,5 +1,30 @@
 import SwiftUI
 
+struct DurationButton: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+        }
+        .if(isSelected) { $0.buttonStyle(.borderedProminent) }
+        .if(!isSelected) { $0.buttonStyle(.bordered) }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
 struct MenuBarView: View {
     @EnvironmentObject var appState: AppState
 
@@ -53,11 +78,12 @@ struct IdleView: View {
 
                 HStack(spacing: 8) {
                     ForEach(durations, id: \.self) { mins in
-                        Button(durationLabel(mins)) {
+                        DurationButton(
+                            label: durationLabel(mins),
+                            isSelected: selectedMinutes == mins
+                        ) {
                             selectedMinutes = mins
                         }
-                        .buttonStyle(.bordered)
-                        .tint(selectedMinutes == mins ? .accentColor : .secondary)
                     }
                 }
             }
